@@ -5,7 +5,9 @@ import {
   ResponseType,
 } from "../responseHandlers";
 
-export const getPlanets = async (page: number): Promise<ResponseType<Planets>> => {
+export const getPlanets = async (
+  page: number
+): Promise<ResponseType<Planets>> => {
   try {
     const response = await fetch(`https://swapi.dev/api/planets/?page=${page}`);
     const data = await response.json();

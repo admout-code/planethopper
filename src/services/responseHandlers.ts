@@ -1,16 +1,16 @@
 export enum ResponseStatus {
-    FAIL = "fail",
-    SUCCESS = "success",
+  FAIL = "fail",
+  SUCCESS = "success",
 }
 
 export type SuccessResponse<T> = {
-    data: T;
-    status: ResponseStatus.SUCCESS;
-}
+  data: T;
+  status: ResponseStatus.SUCCESS;
+};
 export type FailResponse = {
-    data: string;
-    status: ResponseStatus.FAIL;
-}
+  data: string;
+  status: ResponseStatus.FAIL;
+};
 
 export type ResponseType<T> = SuccessResponse<T> | FailResponse;
 
@@ -28,11 +28,15 @@ export const createFailResponse = (error: string): FailResponse => ({
 });
 
 // -- Predicates
-export const isSuccessResponse = <T>(data: ResponseType<T>): data is SuccessResponse<T> => {
+export const isSuccessResponse = <T>(
+  data: ResponseType<T>
+): data is SuccessResponse<T> => {
   if (data.status === ResponseStatus.SUCCESS) return true;
   return false;
 };
-export const isFailResponse = <T>(data: ResponseType<T>): data is FailResponse => {
+export const isFailResponse = <T>(
+  data: ResponseType<T>
+): data is FailResponse => {
   if (data.status === ResponseStatus.FAIL) return true;
   return false;
 };
