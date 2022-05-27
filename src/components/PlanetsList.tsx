@@ -37,41 +37,39 @@ export function PlanetsList() {
     [selectedTrips]
   );
 
-  const fetchMore = useCallback(async (page: number) => {
-    setIsLoadingMore(true);
-    try {
-      const response = await getPlanets(page);
-      if (isSuccessResponse(response)) {
-        return updateData((prev) => ({
-          ...response.data,
-          results: [...(prev?.results ?? []), ...response.data.results],
-        }));
+  const fetchMore = useCallback(
+    async (page: number) => {
+      setIsLoadingMore(true);
+      try {
+        const response = await getPlanets(page);
+        if (isSuccessResponse(response)) {
+          return updateData((prev) => ({
+            ...response.data,
+            results: [...(prev?.results ?? []), ...response.data.results],
+          }));
+        }
+        updateError(response);
+      } catch (_) {
+        updateError(
+          createFailResponse("There's an error while trying to load more.")
+        );
+      } finally {
+        setIsLoadingMore(false);
       }
-      updateError(response);
-    } catch (_) {
-      updateError(
-        createFailResponse("There's an error while trying to load more.")
-      );
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [updateData, updateError]);
+    },
+    [updateData, updateError]
+  );
 
   const onEndReached = useCallback(() => {
     /* 
       Change page only if we're not 
       currently fetching more data and if we have next (obviously :P)
     */
-    if (data?.next && !isLoadingMore) setPage((prev) => prev + 1);
-  }, [data?.next, isLoadingMore]);
-
-  useEffect(() => {
-    /*
-      We use page > 1 to prevent this useEffect run on initial load 
-      together with useFetch
-    */
-    if (page > 1) fetchMore(page);
-  }, [page, fetchMore]);
+    if (data?.next && !isLoadingMore) {
+      fetchMore(page + 1);
+      setPage((prev) => prev + 1);
+    }
+  }, [data?.next, fetchMore, isLoadingMore, page]);
 
   if (error && error.status === ResponseStatus.FAIL) {
     return <ErrorPage message={error.data} />;
