@@ -9,12 +9,9 @@ import {
 export const useFetch = <T>(fetchFn: () => Promise<ResponseType<T>>) => {
   const fnRef = useRef(fetchFn);
   const [data, setData] = useState<T>();
+  const updateDataRef = useRef(setData);
   const [error, setError] = useState<FailResponse>();
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fnRef.current = fetchFn;
-  }, [fetchFn]);
 
   const fetcher = useCallback(async () => {
     try {
@@ -32,10 +29,23 @@ export const useFetch = <T>(fetchFn: () => Promise<ResponseType<T>>) => {
     }
   }, []);
 
+  // This causes infinite rerenders. Needs investigation
+  // useEffect(() => {
+  //   fnRef.current = fetchFn;
+  // }, [fetchFn]);
+
   useEffect(() => {
     setLoading(true);
     fetcher();
   }, [fetcher]);
 
-  return { data, loading, error, refetch: fetchFn };
+  return {
+    data,
+    updateData: updateDataRef.current,
+    updateError: setError,
+    loading,
+    error,
+    // Couldn't provide the refetchFn because of infinite rerenders
+    // refetch: fnRef.current,
+  };
 };
