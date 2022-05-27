@@ -61,10 +61,6 @@ export function PlanetsList() {
   );
 
   const onEndReached = useCallback(() => {
-    /* 
-      Change page only if we're not 
-      currently fetching more data and if we have next (obviously :P)
-    */
     if (data?.next && !isLoadingMore) {
       fetchMore(page + 1);
       setPage((prev) => prev + 1);
