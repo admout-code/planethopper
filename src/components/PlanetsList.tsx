@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { StyleSheet, ActivityIndicator, View, FlatList } from "react-native";
 import { PlanetType } from "../entities/planet";
 import { getPlanets } from "../services/fetchFunctions/getPlanets";
