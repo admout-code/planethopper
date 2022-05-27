@@ -14,7 +14,7 @@ type DescribeSetter<T> = (
 
 /**
  *
- * @param fetchFn Always memoize your fetchFunction with useCallback to avoid rerenders
+ * @param fetchFn Always memoize your fetchFunction with useCallback to avoid rerenders.
  * @param describeSetter Describe setData behaviour after success fetching data.
  * If describeSetter not provided, default setData will take place instead.
  * @example describeSetter example:
@@ -28,7 +28,6 @@ export const useFetch = <T>(
 ) => {
   const describerRef = useRef(describeSetter);
   const [data, setData] = useState<T>();
-  const updateDataRef = useRef(setData);
   const [error, setError] = useState<FailResponse>();
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +56,7 @@ export const useFetch = <T>(
 
   return {
     data,
-    updateData: updateDataRef.current,
+    updateData: setData,
     updateError: setError,
     loading,
     error,
