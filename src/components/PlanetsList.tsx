@@ -48,7 +48,7 @@ export function PlanetsList() {
         }));
       }
       updateError(response);
-    } catch (err) {
+    } catch (_) {
       updateError(
         createFailResponse("There's an error while trying to load more.")
       );
