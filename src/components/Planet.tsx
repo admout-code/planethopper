@@ -4,15 +4,12 @@ import { StyleSheet, View, Image } from "react-native";
 import { Typography } from "../ui-kit/Typography";
 import { getRandomImage } from "../../assets/planethopperImages";
 import { Button } from "../ui-kit/Button";
+import { thousandsWithCommas } from "../utils/thousandsWithCommas";
 
 type PlanetFC = {
   planet: PlanetType;
   onPress: (planet: PlanetType) => void;
   isHighlighted: boolean;
-};
-
-const thousandsWithCommas = (value: string) => {
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 export function Planet({ planet, onPress, isHighlighted }: PlanetFC) {
