@@ -1,4 +1,3 @@
-// import { thousandsWithCommas } from "../utils/thousandsWithCommas";
 import { thousandsWithCommas } from "../utils/thousandsWithCommas";
 
 test("10000 to equal 10,000", () => {
