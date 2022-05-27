@@ -25,8 +25,11 @@ export function PlanetsList() {
       }))
   );
 
-  const isModalOpen = Boolean(Object.values(selectedTrips).length);
   const isLoadingMore = useMemo(() => loading && page > 1, [loading, page]);
+  const isModalOpen = useMemo(
+    () => Boolean(Object.values(selectedTrips).length),
+    [selectedTrips]
+  );
 
   const handlePlanetPress = useCallback(
     (planet: PlanetType) => {
