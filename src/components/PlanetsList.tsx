@@ -1,12 +1,8 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { StyleSheet, ActivityIndicator, View, FlatList } from "react-native";
 import { PlanetType } from "../entities/planet";
 import { getPlanets } from "../services/fetchFunctions/getPlanets";
-import {
-  createFailResponse,
-  isSuccessResponse,
-  ResponseStatus,
-} from "../services/responseHandlers";
+import { ResponseStatus } from "../services/responseHandlers";
 import { useFetch } from "../services/useFetch";
 import { ErrorPage } from "../ui-kit/ErrorPage";
 import { LoadingScreen } from "../ui-kit/LoadingScreen";
@@ -15,16 +11,22 @@ import { PlannedTrips } from "./PlannedTrips";
 
 export function PlanetsList() {
   const [page, setPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [selectedTrips, setSelectedTrips] = useState<
     Record<string, PlanetType>
   >({});
 
-  const { data, loading, error, updateData, updateError } = useFetch(() =>
-    getPlanets(page)
+  const fetchPlanets = useCallback(() => getPlanets(page), [page]);
+  const { data, loading, error } = useFetch(
+    fetchPlanets,
+    (setData, fetchResult) =>
+      setData((prev) => ({
+        ...fetchResult.data,
+        results: [...(prev?.results ?? []), ...fetchResult.data.results],
+      }))
   );
 
   const isModalOpen = Boolean(Object.values(selectedTrips).length);
+  const isLoadingMore = useMemo(() => loading && page > 1, [loading, page]);
 
   const handlePlanetPress = useCallback(
     (planet: PlanetType) => {
@@ -37,41 +39,17 @@ export function PlanetsList() {
     [selectedTrips]
   );
 
-  const fetchMore = useCallback(
-    async (page: number) => {
-      setIsLoadingMore(true);
-      try {
-        const response = await getPlanets(page);
-        if (isSuccessResponse(response)) {
-          return updateData((prev) => ({
-            ...response.data,
-            results: [...(prev?.results ?? []), ...response.data.results],
-          }));
-        }
-        updateError(response);
-      } catch (_) {
-        updateError(
-          createFailResponse("There's an error while trying to load more.")
-        );
-      } finally {
-        setIsLoadingMore(false);
-      }
-    },
-    [updateData, updateError]
-  );
-
   const onEndReached = useCallback(() => {
     if (data?.next && !isLoadingMore) {
-      fetchMore(page + 1);
       setPage((prev) => prev + 1);
     }
-  }, [data?.next, fetchMore, isLoadingMore, page]);
+  }, [data?.next, isLoadingMore]);
 
   if (error && error.status === ResponseStatus.FAIL) {
     return <ErrorPage message={error.data} />;
   }
 
-  if (!data || loading) {
+  if (!data || (loading && !isLoadingMore)) {
     return <LoadingScreen />;
   }
 

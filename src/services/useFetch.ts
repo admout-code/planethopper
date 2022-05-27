@@ -4,10 +4,29 @@ import {
   FailResponse,
   isSuccessResponse,
   ResponseType,
+  SuccessResponse,
 } from "./responseHandlers";
 
-export const useFetch = <T>(fetchFn: () => Promise<ResponseType<T>>) => {
-  const fnRef = useRef(fetchFn);
+type DescribeSetter<T> = (
+  setData: React.Dispatch<React.SetStateAction<T | undefined>>,
+  fetchResponse: SuccessResponse<T>
+) => void;
+
+/**
+ *
+ * @param fetchFn Always memoize your fetchFunction with useCallback to avoid rerenders
+ * @param describeSetter Describe setData behaviour after success fetching data.
+ * If describeSetter not provided, default setData will take place instead.
+ * @example describeSetter example:
+ * (setData, fetchResponse) => setData((prev) => ({...prev, fetchResponse}))
+ *
+ */
+
+export const useFetch = <T>(
+  fetchFn: () => Promise<ResponseType<T>>,
+  describeSetter?: DescribeSetter<T>
+) => {
+  const describerRef = useRef(describeSetter);
   const [data, setData] = useState<T>();
   const updateDataRef = useRef(setData);
   const [error, setError] = useState<FailResponse>();
@@ -15,9 +34,11 @@ export const useFetch = <T>(fetchFn: () => Promise<ResponseType<T>>) => {
 
   const fetcher = useCallback(async () => {
     try {
-      const response = await fnRef.current();
+      const response = await fetchFn();
       if (isSuccessResponse(response)) {
-        return setData(response.data);
+        return describerRef.current
+          ? describerRef.current(setData, response)
+          : setData(response.data);
       }
       setError(response);
     } catch (_) {
@@ -27,12 +48,7 @@ export const useFetch = <T>(fetchFn: () => Promise<ResponseType<T>>) => {
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  // This causes infinite rerenders. Needs investigation
-  // useEffect(() => {
-  //   fnRef.current = fetchFn;
-  // }, [fetchFn]);
+  }, [fetchFn]);
 
   useEffect(() => {
     setLoading(true);
@@ -45,7 +61,6 @@ export const useFetch = <T>(fetchFn: () => Promise<ResponseType<T>>) => {
     updateError: setError,
     loading,
     error,
-    // Couldn't provide the refetchFn because of infinite rerenders
-    // refetch: fnRef.current,
+    refetch: fetchFn,
   };
 };
