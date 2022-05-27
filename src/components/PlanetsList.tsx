@@ -37,7 +37,7 @@ export function PlanetsList() {
     [selectedTrips]
   );
 
-  const fetchMore = useCallback(async () => {
+  const fetchMore = useCallback(async (page: number) => {
     setIsLoadingMore(true);
     try {
       const response = await getPlanets(page);
@@ -55,7 +55,7 @@ export function PlanetsList() {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [page, updateData, updateError]);
+  }, [updateData, updateError]);
 
   const onEndReached = useCallback(() => {
     /* 
@@ -70,7 +70,7 @@ export function PlanetsList() {
       We use page > 1 to prevent this useEffect run on initial load 
       together with useFetch
     */
-    if (page > 1) fetchMore();
+    if (page > 1) fetchMore(page);
   }, [page, fetchMore]);
 
   if (error && error.status === ResponseStatus.FAIL) {
