@@ -60,6 +60,6 @@ export const useFetch = <T>(
     updateError: setError,
     loading,
     error,
-    refetch: fetchFn,
+    refetch: fetcher,
   };
 };
